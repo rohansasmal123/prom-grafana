@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: prometheus
+    labels:
+        app: prometheus
+spec:
+    replicas: 2
+    selector:
+        matchLabels:
+            app: prometheus
+    template:
+        metadata:
+            labels:
+                app: prometheus
+        spec:
+            containers:
+            - name: prometheus
+              image: prom/prometheus
+              volumeMounts:
+              - mountPath: /etc/prometheus/data
+                name: prom-volume
+              ports:
+              - containerPort: 9090
+            volumes:
+            - name: prom-volume
+              persistentVolumeClaim:
+                  claimName: my-claim
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: prom-service
+    labels:
+        app: prom-metrics
+spec:
+    ports:
+        - port: 9090
+          nodePort: 31000
+    selector:
+        app: prom-metrics
+    type: NodePort
+                                
+
+

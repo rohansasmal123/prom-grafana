@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: grafana
+    labels:
+        app: grafana
+spec:
+    replicas: 2
+    selector:
+        matchLabels:
+            app: grafana
+    template:
+        metadata:
+            labels:
+                app: grafana
+        spec:
+            containers:
+            - name: grafana
+              image: grafana/grafana
+              volumeMounts:
+              - mountPath: /var/lib/grafana
+                name: grafana-volume
+              ports:
+              - containerPort: 3000
+            volumes:
+            - name: grafana-volume
+              persistentVolumeClaim:
+                  claimName: grafana-claim
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: grafana-service
+    labels:
+        app: grafana-graph
+spec:
+    ports:
+        - port: 3000
+          nodePort: 31110
+    selector:
+        app: grafana-metrics
+    type: NodePort
+
+
+
